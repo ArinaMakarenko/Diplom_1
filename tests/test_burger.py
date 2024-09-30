@@ -77,4 +77,6 @@ class TestBurger:
         burger.add_ingredient(ingredient_one)
         burger.add_ingredient(ingredient_two)
 
-        assert burger.bun.name in burger.get_receipt()
+        test_recipe = "Булка Ньютона\nКосмический Раф - 5.0\nЗолотой Раф - 10.0"
+
+        assert burger.get_receipt() == test_recipe
