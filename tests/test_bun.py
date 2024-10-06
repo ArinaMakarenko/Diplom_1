@@ -1,19 +1,20 @@
+import pytest
 from praktikum.bun import Bun
 
 
 class TestBun:
+    @pytest.mark.parametrize("name, price", [
+        ('Булочка от Практикума', 100),
+        ('Булочка Дипломная', 200),
+    ])
+    def test_bun_name(self, name, price):
+        bun = Bun(name, price)
+        assert bun.get_name() == name
 
-    def test_name_price_true(self):
-        bun = Bun('Булка Ньютона', 2.5)
-
-        assert bun.name == 'Булка Ньютона' and bun.price == 2.5
-
-    def test_get_name_bun_true(self):
-        bun = Bun('Булка Ньютона', 2.5)
-
-        assert bun.get_name() == 'Булка Ньютона'
-
-    def test_get_price_bun_true(self):
-        bun = Bun('Булка Ньютона', 2.5)
-
-        assert bun.get_price() == 2.5
+    @pytest.mark.parametrize("name, price", [
+        ('Булочка от Практикума', 100),
+        ('Булочка Дипломная', 200),
+    ])
+    def test_bun_price(self, name, price):
+        bun = Bun(name, price)
+        assert bun.get_price() == price

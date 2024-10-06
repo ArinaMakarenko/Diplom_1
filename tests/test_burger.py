@@ -1,82 +1,96 @@
 import pytest
 from unittest.mock import Mock
 from praktikum.burger import Burger
-from praktikum.bun import Bun
-from praktikum.ingredient import Ingredient
 from praktikum.ingredient_types import INGREDIENT_TYPE_SAUCE, INGREDIENT_TYPE_FILLING
 
 
-class TestBurger:
-    def test_create_burger_true(self):
-        burger = Burger()
+@pytest.mark.parametrize("bun_name, bun_price", [
+    ("Булочка Дипломная", 100.5),
+    ("Булочка от Практикума", 50.0)
+])
+def test_set_buns(bun_name, bun_price):
+    burger = Burger()
+    mock_bun = Mock()
+    mock_bun.get_name.return_value = bun_name
+    mock_bun.get_price.return_value = bun_price
+    burger.set_buns(mock_bun)
+    assert burger.bun == mock_bun
 
-        assert burger.bun is None and burger.ingredients == []
+@pytest.mark.parametrize("ingredient_type, ingredient_name, ingredient_price", [
+    (INGREDIENT_TYPE_SAUCE, "Соус Дипломный", 50.5),
+    (INGREDIENT_TYPE_FILLING, "Начинка Дипломная", 30.3)
+])
+def test_add_ingredient(ingredient_type, ingredient_name, ingredient_price):
+    burger = Burger()
+    mock_ingredient = Mock()
+    mock_ingredient.get_type.return_value = ingredient_type
+    mock_ingredient.get_name.return_value = ingredient_name
+    mock_ingredient.get_price.return_value = ingredient_price
+    burger.add_ingredient(mock_ingredient)
+    assert burger.ingredients == [mock_ingredient]
 
-    def test_set_buns_true(self):
-        burger = Burger()
-        mock_bun = Mock()
-        mock_bun.name = 'Булка Ньютона'
-        mock_bun.price = 2.5
-        burger.set_buns(mock_bun)
+def test_remove_ingredient():
+    burger = Burger()
+    mock_ingredient_sauce = Mock()
+    mock_ingredient_filling = Mock()
+    burger.ingredients = [mock_ingredient_sauce, mock_ingredient_filling]
+    burger.remove_ingredient(0)
+    assert mock_ingredient_sauce not in burger.ingredients
 
-        assert burger.bun.name == 'Булка Ньютона' and burger.bun.price == 2.5
+def test_move_ingredient():
+    burger = Burger()
+    mock_ingredient_sauce = Mock()
+    mock_ingredient_filling = Mock()
+    burger.ingredients = [mock_ingredient_sauce, mock_ingredient_filling]
+    burger.move_ingredient(0, 1)
+    assert burger.ingredients == [mock_ingredient_filling, mock_ingredient_sauce]
 
-    @pytest.mark.parametrize('type_ingredient', [INGREDIENT_TYPE_SAUCE, INGREDIENT_TYPE_FILLING])
-    def test_add_ingredient_true(self, type_ingredient):
-        burger = Burger()
-        mock_ingredient = Mock()
-        mock_ingredient.type = type_ingredient
-        mock_ingredient.name = 'Космический Раф'
-        mock_ingredient.price = 5.0
-        burger.add_ingredient(mock_ingredient)
+def test_get_price():
+    burger = Burger()
+    mock_bun = Mock()
+    mock_bun.get_name.return_value = 'Булочка Дипломная'
+    mock_bun.get_price.return_value = 100.5
 
-        assert mock_ingredient in burger.ingredients
+    mock_ingredient_sauce = Mock()
+    mock_ingredient_sauce.get_type.return_value = INGREDIENT_TYPE_SAUCE
+    mock_ingredient_sauce.get_name.return_value = 'Соус Дипломный'
+    mock_ingredient_sauce.get_price.return_value = 50.5
 
-    @pytest.mark.parametrize('type_ingredient', [INGREDIENT_TYPE_SAUCE, INGREDIENT_TYPE_FILLING])
-    def test_remove_ingredient_true(self, type_ingredient):
-        burger = Burger()
-        ingredient = Ingredient(type_ingredient, 'Космический Раф', 5.0)
-        burger.add_ingredient(ingredient)
-        index_ingredient = burger.ingredients.index(ingredient)
-        burger.remove_ingredient(index_ingredient)
+    mock_ingredient_filling = Mock()
+    mock_ingredient_filling.get_type.return_value = INGREDIENT_TYPE_FILLING
+    mock_ingredient_filling.get_name.return_value = 'Начинка Дипломная'
+    mock_ingredient_filling.get_price.return_value = 30.3
 
-        assert burger.ingredients == []
+    burger.set_buns(mock_bun)
+    burger.add_ingredient(mock_ingredient_sauce)
+    burger.add_ingredient(mock_ingredient_filling)
+    assert burger.get_price() == 281.8
 
-    @pytest.mark.parametrize('type_ingredient', [INGREDIENT_TYPE_SAUCE, INGREDIENT_TYPE_FILLING])
-    def test_move_ingredient_true(self, type_ingredient):
-        burger = Burger()
-        ingredient_one = Ingredient(type_ingredient, 'Космический Раф', 5.0)
-        ingredient_two = Ingredient(type_ingredient, 'Золотой Раф', 10.0)
-        burger.add_ingredient(ingredient_one)
-        burger.add_ingredient(ingredient_two)
-        burger.move_ingredient(0, 1)
+def test_get_receipt():
+    burger = Burger()
+    mock_bun = Mock()
+    mock_bun.get_name.return_value = 'Булочка Дипломная'
+    mock_bun.get_price.return_value = 100.5
 
-        assert burger.ingredients.index(ingredient_one) == 1
+    mock_ingredient_sauce = Mock()
+    mock_ingredient_sauce.get_type.return_value = INGREDIENT_TYPE_SAUCE
+    mock_ingredient_sauce.get_name.return_value = 'Соус Дипломный'
+    mock_ingredient_sauce.get_price.return_value = 50.5
 
-    @pytest.mark.parametrize('type_ingredient', [INGREDIENT_TYPE_SAUCE, INGREDIENT_TYPE_FILLING])
-    def test_get_price_true(self, type_ingredient):
-        burger = Burger()
-        bun = Bun('Булка Ньютона', 2.5)
-        ingredient_one = Ingredient(type_ingredient, 'Космический Раф', 5.0)
-        ingredient_two = Ingredient(type_ingredient, 'Золотой Раф', 10.0)
+    mock_ingredient_filling = Mock()
+    mock_ingredient_filling.get_type.return_value = INGREDIENT_TYPE_FILLING
+    mock_ingredient_filling.get_name.return_value = 'Начинка Дипломная'
+    mock_ingredient_filling.get_price.return_value = 30.3
 
-        burger.set_buns(bun)
-        burger.add_ingredient(ingredient_one)
-        burger.add_ingredient(ingredient_two)
+    burger.set_buns(mock_bun)
+    burger.add_ingredient(mock_ingredient_filling)
+    burger.add_ingredient(mock_ingredient_sauce)
 
-        assert burger.get_price() == 20.0
-
-    @pytest.mark.parametrize('type_ingredient', [INGREDIENT_TYPE_SAUCE, INGREDIENT_TYPE_FILLING])
-    def test_get_receipt_true(self, type_ingredient):
-        burger = Burger()
-        bun = Bun('Булка Ньютона', 2.5)
-        ingredient_one = Ingredient(type_ingredient, 'Космический Раф', 5.0)
-        ingredient_two = Ingredient(type_ingredient, 'Золотой Раф', 10.0)
-
-        burger.set_buns(bun)
-        burger.add_ingredient(ingredient_one)
-        burger.add_ingredient(ingredient_two)
-
-        test_recipe = "Булка Ньютона\nКосмический Раф - 5.0\nЗолотой Раф - 10.0"
-
-        assert burger.get_receipt() == test_recipe
+    expected_receipt = (
+        '(==== Булочка Дипломная ====)\n'
+        '= filling Начинка Дипломная =\n'
+        '= sauce Соус Дипломный =\n'
+        '(==== Булочка Дипломная ====)\n'
+        '\nPrice: 281.8'
+    )
+    assert burger.get_receipt() == expected_receipt
